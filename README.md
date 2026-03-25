@@ -59,10 +59,13 @@ During training the script saves model artifacts to the output directory (for ex
 
 ---
 
-##Training
-To train the model, run:
-python pest_classifier_2_0.py
+## Training
 
+To train the model, run:
+
+   ```bash
+   python pest_classifier_2_0.py
+   ```
 The script will:
 - load the training dataset,
 - extract color + HOG + LBP features,
