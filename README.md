@@ -90,7 +90,20 @@ The demo uses neutral file names (jpg_1.jpg, jpg_2.jpg, …) to show that predic
 This demonstrates that carefully engineered hand-crafted features can be competitive with more complex models for this type of well-controlled data.
 
 ---
-  
+
+## Versions and experiment report
+
+- `pest_classifier_2_0.py` – initial version of the training pipeline (hand‑crafted features + Random Forest, single model evaluation).
+- `pest_classifier_2_1.py` – extended version with:
+  - comparison of Random Forest and Logistic Regression on the same feature set,
+  - test metrics saved to `results_test_models.csv`,
+  - automatic experiment report `report_experiment.md` (dataset summary, per‑model metrics, figure list),
+  - additional artifacts for analysis: `predictions_rf_test.csv`, `confusion_matrix_rf.png`, `feature_importance_rf.png`.
+
+The latest experiments and results shown in this README are based on `pest_classifier_2_1.py`.
+
+---
+
 ## Possible extensions
 - Replace hand-crafted features with a CNN backbone (transfer learning, for example ResNet or EfficientNet).
 - Add more pest species and more challenging real-world conditions (lighting, background, camera type).
@@ -98,7 +111,6 @@ This demonstrates that carefully engineered hand-crafted features can be competi
 
 ---
 
----
 ## Author
 - **Szymon Kwiatkowski** – MSc student (Unmanned Systems and AI), Poznań University of Life Sciences, ML and computer vision enthusiast.  
 - GitHub: [@ruskiturbo69](https://github.com/ruskiturbo69)
