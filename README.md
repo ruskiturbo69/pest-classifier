@@ -89,7 +89,7 @@ The demo uses neutral file names (jpg_1.jpg, jpg_2.jpg, …) to show that predic
 - Random Forest (300 trees) and Logistic Regression both reach around 99.5–100% accuracy and macro‑F1 in 5‑fold stratified cross‑validation.
 - On a held‑out test set the Random Forest model makes only 1–2 mistakes out of 447 images.
 
-These results are generated with the extended training script (`pest_classifier_3_0.py`), which also:
+These results are generated with the extended training script (`pest_classifier_2_1.py`), which also:
 - compares Random Forest and Logistic Regression on the same feature set,
 - saves test metrics to `results_test_models.csv`,
 - produces an automatic experiment report (`report_experiment.md`) and artifacts for analysis (`predictions_rf_test.csv`, `confusion_matrix_rf.png`, `feature_importance_rf.png`).
