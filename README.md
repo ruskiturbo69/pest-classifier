@@ -36,8 +36,7 @@ The dataset itself is **not** included in this repository. Only a few small exam
 
 ## Project structure
 
-- `pest_classifier_3_0.py` – refactored and updated main training pipeline, featuring a clean, modular structure and comprehensive docstrings around 300 lines long, retaining full functionality.
-- `pest_classifier_condensed_experimental.py` – experimental condensed version of the classifier; highly minimized codebase offering the same pipeline in just under 90 lines.
+- `pest_classifier_3_0.py` – completely simplified and updated main training pipeline, reducing lines of code by over 80% while retaining full functionality.
 - `pest_classifier_2_1.py` – older extended version of the training pipeline (comparing models, producing metrics/reports).
 - `pest_classifier_2_0.py` – initial version of the training pipeline (hand‑crafted features + Random Forest, single model evaluation).
 - `pest_demo.py` – simple CLI demo: prediction for a single image or all images in a folder  
@@ -110,8 +109,7 @@ This demonstrates that carefully engineered hand‑crafted features can be compe
   - automatic experiment report `report_experiment.md` (dataset summary, per‑model metrics, figure list),
   - additional artifacts for analysis: `predictions_rf_test.csv`, `confusion_matrix_rf.png`, `feature_importance_rf.png`.
 
-- `pest_classifier_condensed_experimental.py` – highly experimental, code-golfed version of the script which achieves the same results in ~86 lines.
-- `pest_classifier_3_0.py` – newly refactored, highly readable modular version offering the identical full-featured pipeline as 2.1 while keeping functions cleanly separated.
+- `pest_classifier_3_0.py` – newly refactored version offering the identical full-featured pipeline as 2.1 but in a fraction of the code footprint.
 
 The latest experiments and results shown in this README are based on `pest_classifier_3_0.py`.
 
