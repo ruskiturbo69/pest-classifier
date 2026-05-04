@@ -114,8 +114,8 @@ def run_training(train_dir, test_dir, output_dir):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Pest image classifier – Random Forest")
-    p.add_argument("--train-dir", type=Path, default=Path(r"C:\Users\kwiac\Desktop\Studia\wlasne\maszynowe\insects\pest\pest\train"))
-    p.add_argument("--test-dir", type=Path, default=Path(r"C:\Users\kwiac\Desktop\Studia\wlasne\maszynowe\insects\pest\pest\test"))
+    p.add_argument("--train-dir", type=Path, default=Path("dataset/train"))
+    p.add_argument("--test-dir", type=Path, default=Path("dataset/test"))
     p.add_argument("--output-dir", type=Path, default=Path("ML"))
     args = p.parse_args()
     run_training(args.train_dir, args.test_dir, args.output_dir)
