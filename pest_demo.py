@@ -6,7 +6,7 @@ import joblib
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="skimage.feature")
 
-from pest_classifier_2_0 import extract_features, IMG_SIZE, HIST_BINS
+from pest_classifier_2_0 import extract_features, IMG_SIZE
 
 
 def load_artifacts(model_dir: Path):

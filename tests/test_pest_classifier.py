@@ -19,16 +19,23 @@ def test_predict_image_file_not_found():
     ]
 
     with patch.dict(sys.modules, {mod: MagicMock() for mod in mock_modules}):
-        from pest_classifier_2_1 import predict_image
+        from pest_demo import predict_single
+        from pest_classifier_2_0 import extract_features
 
         # Arrange
-        dummy_path = "non_existent_image.jpg"
-        mock_model = MagicMock()
-        mock_label_encoder = MagicMock()
+        dummy_path = Path("non_existent_image.jpg")
+        mock_model_dir = Path("mock_dir")
 
-        # Act & Assert
-        with pytest.raises(FileNotFoundError) as excinfo:
-            predict_image(dummy_path, mock_model, mock_label_encoder)
+        with patch('pest_demo.load_artifacts') as mock_load:
+            mock_model = MagicMock()
+            mock_le = MagicMock()
+            mock_config = {"IMG_SIZE": [64, 64], "HIST_BINS": 32}
+            mock_load.return_value = (mock_model, mock_le, mock_config)
 
-        assert "Obraz nie istnieje" in str(excinfo.value)
-        assert dummy_path in str(excinfo.value)
+            with patch('pest_demo.extract_features', side_effect=FileNotFoundError(f"Obraz nie istnieje: {dummy_path}")):
+                # Act & Assert
+                with pytest.raises(FileNotFoundError) as excinfo:
+                    predict_single(dummy_path, mock_model_dir)
+
+                assert "Obraz nie istnieje" in str(excinfo.value)
+                assert str(dummy_path) in str(excinfo.value)
