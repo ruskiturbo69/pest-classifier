@@ -6,3 +6,4 @@ Pillow
 scikit-learn
 scikit-image
 joblib
+tabulate
