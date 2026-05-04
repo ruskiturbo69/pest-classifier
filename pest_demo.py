@@ -38,14 +38,22 @@ def predict_folder(folder: Path, model_dir: Path):
         if p.suffix.lower() in {".jpg", ".jpeg", ".png"}
     ]
 
+    if not image_paths:
+        return
+
+    all_feats = []
     for p in image_paths:
         feats = extract_features(
             str(p),
             img_size=tuple(config["IMG_SIZE"]),
             bins=config["HIST_BINS"],
-        ).reshape(1, -1)
-        pred = model.predict(feats)
-        label = le.inverse_transform(pred)[0]
+        )
+        all_feats.append(feats)
+
+    preds = model.predict(all_feats)
+    labels = le.inverse_transform(preds)
+
+    for p, label in zip(image_paths, labels):
         print(f"{p.name:25s} -> {label}")
 
 
