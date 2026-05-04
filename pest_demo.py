@@ -61,7 +61,7 @@ def main():
     parser.add_argument(
         "--model-dir",
         type=Path,
-        default=Path(r"C:\Users\kwiac\Desktop\ML"),
+        default=Path("ML"),
         help="Folder z zapisanym modelem i encoderem",
     )
     args = parser.parse_args()

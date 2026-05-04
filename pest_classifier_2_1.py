@@ -475,13 +475,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--root-dir",
         type=Path,
-        default=Path(r"C:\Users\kwiac\Desktop\insects\pest\pest"),
+        default=Path("dataset"),
         help="Katalog główny datasetu (musi zawierać podkatalog 'train/').",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(r"C:\Users\kwiac\Desktop\ML"),
+        default=Path("ML"),
         help="Katalog wyjściowy na modele i wykresy.",
     )
     return parser.parse_args()
