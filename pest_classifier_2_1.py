@@ -252,21 +252,15 @@ def plot_feature_importance(
     importances = model.feature_importances_
     indices = np.argsort(importances)[::-1]
 
-    feat_names: list[str] = []
-    for ch in ["R", "G", "B"]:
-        feat_names.append(f"mean_{ch}")
-    for ch in ["R", "G", "B"]:
-        feat_names.append(f"std_{ch}")
-    for ch in ["R", "G", "B"]:
-        for i in range(bins):
-            feat_names.append(f"hist_{ch}_{i}")
+    channels = ["R", "G", "B"]
+    feat_names = [f"mean_{ch}" for ch in channels]
+    feat_names.extend([f"std_{ch}" for ch in channels])
+    feat_names.extend([f"hist_{ch}_{i}" for ch in channels for i in range(bins)])
 
     # HOG feature count: reszta po odjęciu kolorów i LBP
     n_hog = model.n_features_in_ - (len(feat_names) + LBP_BINS)
-    for i in range(n_hog):
-        feat_names.append(f"hog_{i}")
-    for i in range(LBP_BINS):
-        feat_names.append(f"lbp_{i}")
+    feat_names.extend([f"hog_{i}" for i in range(n_hog)])
+    feat_names.extend([f"lbp_{i}" for i in range(LBP_BINS)])
 
     top_names = np.array(feat_names)[indices][:top_k]
     top_vals = importances[indices][:top_k]
