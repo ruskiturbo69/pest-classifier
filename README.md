@@ -1,25 +1,27 @@
-# Pest Classifier (Random Forest + HOG + LBP)
+# Klasyfikator Szkodników (Pest Classifier)
+*(Scroll down for English version)*
 
-Educational machine learning project for automatic classification of 9 agricultural pest species from RGB images.
+Projekt edukacyjny uczenia maszynowego służący do automatycznej klasyfikacji szkodników rolniczych (9 gatunków) na podstawie obrazów RGB.
 
-The pipeline extracts a rich set of features from each image (color, shape and texture) and trains a Random Forest classifier. A Logistic Regression model is used as a baseline to show how much can be achieved with good feature engineering alone.
+Oryginalnie aplikacja została stworzona jako projekt zaliczeniowy z dziedziny ML w trakcie studiów magisterskich oraz jako projekt do portfolio.
+
+Model wykorzystuje klasyfikator Losowych Lasów (Random Forest) oraz ekstrakcję ręcznie definiowanych cech, m.in. HOG, LBP (Local Binary Patterns) oraz charakterystyki kolorów, demonstrując jak wysokie wyniki można osiągnąć za pomocą solidnej inżynierii cech, w porównaniu z klasyczną metodą bazową (Regresja Logistyczna).
 
 ---
 
-## Technologies
+## Technologie
 
-- Python 3.11 / 3.14  
+- Python 3.11 / 3.12+
 - scikit-learn (`RandomForestClassifier`, `LogisticRegression`)  
 - scikit-image (HOG, Local Binary Patterns)  
 - NumPy, pandas, matplotlib, seaborn, Pillow  
-- joblib (model persistence)
+- joblib (zapis i odczyt modelu)
 
 ---
 
-## Dataset
+## Zbiór danych
 
-The code assumes a directory structure with separate folders for each pest class under a common training directory, for example:
-
+Zbiór wymaga folderów z przypisanymi gatunkami wewnątrz katalogu głównego (domyślnie: `dataset/train/`), np.:
 - `aphids`  
 - `armyworm`  
 - `beetle`  
@@ -30,98 +32,178 @@ The code assumes a directory structure with separate folders for each pest class
 - `sawfly`  
 - `stem_borer`  
 
-The dataset itself is **not** included in this repository. Only a few small example images are stored in the `demo_jpg` folder for demonstration purposes.
+Ze względów rozmiarowych pełen zbiór danych **nie** znajduje się w tym repozytorium. W katalogu `demo_jpg/` i w `dataset/train/` dołączono jedynie kilka zdjęć demonstracyjnych ułatwiających przetestowanie kodu.
 
 ---
 
-## Project structure
+## Struktura projektu
 
-- `pest_classifier_3_0.py` – completely simplified and updated main training pipeline, reducing lines of code by over 80% while retaining full functionality.
-- `pest_classifier_2_1.py` – older extended version of the training pipeline (comparing models, producing metrics/reports).
-- `pest_classifier_2_0.py` – initial version of the training pipeline (hand‑crafted features + Random Forest, single model evaluation).
-- `pest_demo.py` – simple CLI demo: prediction for a single image or all images in a folder  
-- `demo_jpg/` – a few example images for quick testing  
-- `requirements.txt` – Python dependencies  
+Główny kod został zrefaktoryzowany i znajduje się obecnie w folderze `src/`:
 
-During training the script saves model artifacts to the output directory (for example `ML/`):
+- `src/pest_classifier_3_0.py` – uproszczony i poprawiony główny skrypt treningowy, zredukowana ilość kodu przy zachowaniu pełnej funkcjonalności, posiada odporność na brakujące / zbyt małe klasy.
+- `src/pest_demo.py` – skrypt demonstracyjny CLI: klasyfikacja dla jednego zdjęcia lub całego folderu.
 
-- `rf_model.joblib` – trained Random Forest classifier  
-- `label_encoder.joblib` – `LabelEncoder` for class names  
-- `features_config.json` – configuration of the feature extractor (image size, number of bins, HOG and LBP parameters)
+Poprzednie, archiwalne wersje (pokazujące rozwój projektu) przeniesiono do folderu `legacy/`:
+- `legacy/pest_classifier_2_1.py` – wcześniejsza, rozszerzona wersja rurociągu (porównania modeli, obszerny raport).
+- `legacy/pest_classifier_2_0.py` – oryginalna, pierwsza wersja.
+- `legacy/pest_classifier_condensed.py` – skrócona, eksperymentalna wersja.
+
+W trakcie procesu treningowego artefakty (modele, konfiguracja, wykresy) zapisywane są do katalogu (np. `ML/`):
+- `rf_model.joblib` – wytrenowany klasyfikator Random Forest.
+- `label_encoder.joblib` – `LabelEncoder` przechowujący nazwy klas.
+- `features_config.json` – konfiguracja parametrów ekstrakcji cech (wielkość obrazu, parametry HOG/LBP).
+
+---
+
+## Instalacja
+
+1. Opcjonalnie: stwórz i aktywuj środowisko wirtualne.
+2. Zainstaluj wymagane pakiety komendą:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## Trening
+
+Aby rozpocząć trenowanie modelu:
+
+   ```bash
+   python src/pest_classifier_3_0.py
+   ```
+
+Skrypt wykonuje m.in.:
+- Załadowanie danych z obrazów,
+- Równoległą ekstrakcję cech (kolor + HOG + LBP),
+- Wytrenowanie klasyfikatora Random Forest,
+- Przeprowadzenie walidacji krzyżowej (cross-validation) uwzględniającej wielkość klas,
+- Zapisanie artefaktów modelu oraz wygenerowanie wykresów w folderze wyjściowym (`ML/`).
+
+---
+
+## Demo (Inference)
+Po wytrenowaniu, możesz przetestować model używając `pest_demo.py`.
+
+Przewidywanie na pojedynczym pliku:
+```bash
+python src/pest_demo.py demo_jpg/jpg_1.jpg --model-dir ML
+```
+
+Przewidywanie na folderze:
+```bash
+python src/pest_demo.py demo_jpg/ --model-dir ML
+```
+
+---
+
+## Autor
+- **Szymon Kwiatkowski** – Student MSc (Unmanned Systems and AI), Poznań University of Life Sciences. Pasjonat Machine Learning i Computer Vision.
+- GitHub: [@ruskiturbo69](https://github.com/ruskiturbo69)
+
+---
+---
+
+# Pest Classifier (English)
+
+Educational machine learning project for the automatic classification of 9 agricultural pest species from RGB images.
+
+The application was originally created as an academic master's degree project and as a machine learning portfolio piece.
+
+The model uses a Random Forest classifier alongside handcrafted feature extraction, including HOG, LBP (Local Binary Patterns), and color features, demonstrating how high accuracy can be achieved with solid feature engineering compared to a basic Logistic Regression baseline.
+
+---
+
+## Technologies
+
+- Python 3.11 / 3.12+
+- scikit-learn (`RandomForestClassifier`, `LogisticRegression`)
+- scikit-image (HOG, Local Binary Patterns)
+- NumPy, pandas, matplotlib, seaborn, Pillow
+- joblib (model persistence)
+
+---
+
+## Dataset
+
+The dataset requires folders assigned to specific pest species located in the main directory (default: `dataset/train/`), e.g.:
+- `aphids`
+- `armyworm`
+- `beetle`
+- `bollworm`
+- `grasshopper`
+- `mites`
+- `mosquito`
+- `sawfly`
+- `stem_borer`
+
+For storage constraints, the entire dataset is **not** included in this repository. Only a few demonstration images are kept in `demo_jpg/` and `dataset/train/` to help test the code quickly.
+
+---
+
+## Project Structure
+
+The main codebase has been refactored and is now located in the `src/` directory:
+
+- `src/pest_classifier_3_0.py` – simplified and optimized main training script, reducing code bloat while retaining full functionality. It now also gracefully handles small or missing datasets.
+- `src/pest_demo.py` – CLI demonstration script: classification for a single image or an entire directory.
+
+Older, archival versions (showing the evolution of the code) have been moved to the `legacy/` directory:
+- `legacy/pest_classifier_2_1.py` – an earlier extended pipeline version (model comparison, detailed reporting).
+- `legacy/pest_classifier_2_0.py` – the original first iteration.
+- `legacy/pest_classifier_condensed.py` – a condensed, experimental version.
+
+During training, artifacts (models, configuration, plots) are saved to the output directory (e.g., `ML/`):
+- `rf_model.joblib` – trained Random Forest classifier.
+- `label_encoder.joblib` – `LabelEncoder` storing the class names.
+- `features_config.json` – configuration parameters for feature extraction (image size, HOG/LBP parameters).
 
 ---
 
 ## Installation
 
-1. (Optional) Create and activate a virtual environment.  
-2. Install dependencies:
+1. Optionally: create and activate a virtual environment.
+2. Install the required dependencies:
 
    ```bash
    pip install -r requirements.txt
+   ```
 
 ---
 
 ## Training
 
-To train the model, run:
+To train the model, simply run:
 
    ```bash
-   python pest_classifier_3_0.py
+   python src/pest_classifier_3_0.py
    ```
-The script will:
-- load the training dataset,
-- extract color + HOG + LBP features,
-- train a Random Forest classifier,
-- evaluate it on a held-out test set,
-- run stratified cross-validation,
-- save model artifacts and plots (class counts, confusion matrix, feature importance).
+
+The script will handle:
+- Loading image data,
+- Concurrent feature extraction (Color + HOG + LBP),
+- Training a Random Forest classifier,
+- Running Stratified Cross-Validation (adapted to class size limits),
+- Saving model artifacts and outputting analytic plots in the target folder (`ML/`).
 
 ---
 
-## Demo: predicting pests from images
-After training, you can test the model on individual images or on a folder with images using pest_demo.py and the saved model directory (for example ML/).
-The demo uses neutral file names (jpg_1.jpg, jpg_2.jpg, …) to show that predictions are not hard-coded and the model genuinely infers the class from image content.
+## Demo (Inference)
+After training the model, you can test it out using `pest_demo.py`.
 
----
+Predicting a single image:
+```bash
+python src/pest_demo.py demo_jpg/jpg_1.jpg --model-dir ML
+```
 
-## Results
-
-- 9 pest classes, 2232 training images in total.
-- Feature vector: color statistics, RGB histograms, HOG and LBP (around 1600 features per image).
-- Random Forest (300 trees) and Logistic Regression both reach around 99.5–100% accuracy and macro‑F1 in 5‑fold stratified cross‑validation.
-- On a held‑out test set the Random Forest model makes only 1–2 mistakes out of 447 images.
-
-These results are generated with the newest training script (`pest_classifier_3_0.py`), which retains all functionality of 2.1:
-- compares Random Forest and Logistic Regression on the same feature set,
-- saves test metrics to `results_test_models.csv`,
-- produces an automatic experiment report (`report_experiment.md`) and artifacts for analysis (`predictions_rf_test.csv`, `confusion_matrix_rf.png`, `feature_importance_rf.png`).
-
-This demonstrates that carefully engineered hand‑crafted features can be competitive with more complex models for this type of well‑controlled data.
-
----
-
-## Versions and experiment report
-
-- `pest_classifier_2_0.py` – initial version of the training pipeline (hand‑crafted features + Random Forest, single model evaluation).
-- `pest_classifier_2_1.py` – extended version with:
-  - comparison of Random Forest and Logistic Regression on the same feature set,
-  - test metrics saved to `results_test_models.csv`,
-  - automatic experiment report `report_experiment.md` (dataset summary, per‑model metrics, figure list),
-  - additional artifacts for analysis: `predictions_rf_test.csv`, `confusion_matrix_rf.png`, `feature_importance_rf.png`.
-
-- `pest_classifier_3_0.py` – newly refactored version offering the identical full-featured pipeline as 2.1 but in a fraction of the code footprint.
-
-The latest experiments and results shown in this README are based on `pest_classifier_3_0.py`.
-
----
-
-## Possible extensions
-- Replace hand-crafted features with a CNN backbone (transfer learning, for example ResNet or EfficientNet).
-- Add more pest species and more challenging real-world conditions (lighting, background, camera type).
-- Deploy as a simple web or mobile application for farmers or integrate with UAV and field robots.
+Predicting an entire directory:
+```bash
+python src/pest_demo.py demo_jpg/ --model-dir ML
+```
 
 ---
 
 ## Author
-- **Szymon Kwiatkowski** – MSc student (Unmanned Systems and AI), Poznań University of Life Sciences, ML and computer vision enthusiast.  
+- **Szymon Kwiatkowski** – MSc student (Unmanned Systems and AI), Poznań University of Life Sciences. ML and Computer Vision enthusiast.
 - GitHub: [@ruskiturbo69](https://github.com/ruskiturbo69)

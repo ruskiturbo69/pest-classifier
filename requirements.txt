@@ -7,3 +7,4 @@ scikit-learn
 scikit-image
 joblib
 tabulate
+pytest

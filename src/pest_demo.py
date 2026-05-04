@@ -6,7 +6,12 @@ import joblib
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="skimage.feature")
 
-from pest_classifier_2_0 import extract_features, IMG_SIZE, HIST_BINS
+# Add the directory containing this script to sys.path
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from pest_classifier_3_0 import extract_features, CFG
 
 
 def load_artifacts(model_dir: Path):
@@ -17,21 +22,31 @@ def load_artifacts(model_dir: Path):
     return model, label_encoder, config
 
 
+def update_global_config(config: dict):
+    """
+    Updates the global CFG in pest_classifier_3_0 to match the configuration
+    the model was trained on, to ensure correct feature extraction.
+    """
+    for k, v in config.items():
+        if k == "IMG_SIZE" and isinstance(v, list):
+            v = tuple(v)
+        elif k in ["HOG_PIXELS_PER_CELL", "HOG_CELLS_PER_BLOCK"] and isinstance(v, list):
+            v = tuple(v)
+        CFG[k] = v
+
+
 def predict_single(image_path: Path, model_dir: Path) -> str:
     model, le, config = load_artifacts(model_dir)
+    update_global_config(config)
 
-    feats = extract_features(
-        str(image_path),
-        img_size=tuple(config["IMG_SIZE"]),
-        bins=config["HIST_BINS"],
-    ).reshape(1, -1)
-
+    feats = extract_features(str(image_path)).reshape(1, -1)
     pred = model.predict(feats)
     return le.inverse_transform(pred)[0]
 
 
 def predict_folder(folder: Path, model_dir: Path):
     model, le, config = load_artifacts(model_dir)
+    update_global_config(config)
 
     image_paths = [
         p for p in folder.iterdir()
@@ -39,11 +54,7 @@ def predict_folder(folder: Path, model_dir: Path):
     ]
 
     for p in image_paths:
-        feats = extract_features(
-            str(p),
-            img_size=tuple(config["IMG_SIZE"]),
-            bins=config["HIST_BINS"],
-        ).reshape(1, -1)
+        feats = extract_features(str(p)).reshape(1, -1)
         pred = model.predict(feats)
         label = le.inverse_transform(pred)[0]
         print(f"{p.name:25s} -> {label}")
