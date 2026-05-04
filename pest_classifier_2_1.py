@@ -338,22 +338,6 @@ def save_artifacts(
     log.info("Artefakty zapisane w: %s", output_dir)
 
 
-def predict_image(
-    path_to_image: str | Path,
-    model: RandomForestClassifier,
-    label_encoder: LabelEncoder,
-    img_size: tuple[int, int] = IMG_SIZE,
-    bins: int = HIST_BINS,
-) -> str:
-    path_to_image = Path(path_to_image)
-    if not path_to_image.exists():
-        raise FileNotFoundError(f"Obraz nie istnieje: {path_to_image}")
-
-    feats = extract_features(str(path_to_image), img_size, bins).reshape(1, -1)
-    label = label_encoder.inverse_transform(model.predict(feats))[0]
-    return label
-
-
 # ================== HELPERS ==================
 
 
