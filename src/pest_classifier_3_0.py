@@ -283,18 +283,36 @@ def run_cross_validation(rf, X, y_enc):
         X (np.ndarray): Full feature matrix.
         y_enc (np.ndarray): Full encoded labels.
     """
-    cv = StratifiedKFold(n_splits=CFG["CV_FOLDS"], shuffle=True, random_state=CFG["RANDOM_STATE"])
+    # Adjust n_splits if some classes have fewer samples than CV_FOLDS
+    unique_classes, counts = np.unique(y_enc, return_counts=True)
+    min_samples = counts.min()
+    n_splits = min(CFG["CV_FOLDS"], min_samples)
+
+    if n_splits < 2:
+        log.warning("Nie wystarczająca liczba próbek w klasach do przeprowadzenia cross-walidacji. Wymagane min. 2 próbki per klasa. (Znaleziono min. %d)", min_samples)
+        return
+
+    if n_splits < CFG["CV_FOLDS"]:
+        log.warning("Zmniejszono liczbę podziałów cross-walidacji do %d ze względu na rzadkie klasy.", n_splits)
+
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=CFG["RANDOM_STATE"])
 
     # CV for Random Forest
-    rf_scores = cross_val_score(rf, X, y_enc, cv=cv, scoring="accuracy")
-    log.info("CV (RF): %.3f +/- %.3f", rf_scores.mean(), rf_scores.std())
+    try:
+        rf_scores = cross_val_score(rf, X, y_enc, cv=cv, scoring="accuracy")
+        log.info("CV (RF): %.3f +/- %.3f", rf_scores.mean(), rf_scores.std())
+    except Exception as e:
+        log.error("Błąd podczas CV (RF): %s", str(e))
 
     # CV for Logistic Regression
-    lr = LogisticRegression(max_iter=1000)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    lr_scores = cross_val_score(lr, X_scaled, y_enc, cv=cv, scoring="accuracy")
-    log.info("CV (LogReg): %.3f +/- %.3f", lr_scores.mean(), lr_scores.std())
+    try:
+        lr = LogisticRegression(max_iter=1000)
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        lr_scores = cross_val_score(lr, X_scaled, y_enc, cv=cv, scoring="accuracy")
+        log.info("CV (LogReg): %.3f +/- %.3f", lr_scores.mean(), lr_scores.std())
+    except Exception as e:
+        log.error("Błąd podczas CV (LogReg): %s", str(e))
 
 def save_artifacts(rf, le, X, output_dir):
     """
@@ -333,14 +351,32 @@ def run_training(root_dir, output_dir):
     # 3. Extract features
     X = extract_all_features(df)
 
+    if len(df) == 0:
+        log.error("Brak obrazów w zbiorze danych. Zakończenie pracy.")
+        return
+
     # 4. Encode labels
     le = LabelEncoder()
     y_enc = le.fit_transform(df["label"])
 
     # 5. Split dataset
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y_enc, test_size=CFG["TEST_SIZE"], random_state=CFG["RANDOM_STATE"], stratify=y_enc
-    )
+    unique_classes, counts = np.unique(y_enc, return_counts=True)
+    min_samples = counts.min()
+
+    if min_samples < 2:
+        log.warning("Zbyt mało danych dla klas do wykonania stratyfikowanego podziału testowego. Użyto podziału bez stratyfikacji.")
+        X_tr, X_te, y_tr, y_te = train_test_split(
+            X, y_enc, test_size=CFG["TEST_SIZE"], random_state=CFG["RANDOM_STATE"]
+        )
+    else:
+        X_tr, X_te, y_tr, y_te = train_test_split(
+            X, y_enc, test_size=CFG["TEST_SIZE"], random_state=CFG["RANDOM_STATE"], stratify=y_enc
+        )
+
+    # Sprawdzenie czy mamy wystarczająco danych treningowych i testowych
+    if len(X_tr) == 0 or len(X_te) == 0:
+        log.error("Zbyt mało danych by wydzielić zbiór treningowy i testowy. Minimalnie potrzebne jest kilka obrazów. Użycie całości jako trening.")
+        X_tr, X_te, y_tr, y_te = X, X, y_enc, y_enc
 
     # 6. Train and evaluate models
     rf = train_and_evaluate_models(
@@ -348,7 +384,10 @@ def run_training(root_dir, output_dir):
     )
 
     # 7. Plot and save Random Forest results
-    plot_model_results(rf, X_te, y_te, le, output_dir)
+    try:
+        plot_model_results(rf, X_te, y_te, le, output_dir)
+    except Exception as e:
+        log.error("Nie można było zapisać wykresów ewaluacji: %s", str(e))
 
     # 8. Run cross-validation
     run_cross_validation(rf, X, y_enc)

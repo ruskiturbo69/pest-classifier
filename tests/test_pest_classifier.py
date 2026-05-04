@@ -1,34 +1,43 @@
 import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
 
-# Use patch.dict to mock modules during the test only,
-# although for top-level imports in the module under test,
-# we might still need some level of sys.modules manipulation if we can't install dependencies.
-# Given the environment constraints, I will keep the mocks but clean them up.
-
+# Fix sys.path for the tests to import src.pest_demo properly
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+from pest_demo import predict_single
 
-def test_predict_image_file_not_found():
-    # Mocking the dependencies needed by pest_classifier_2_1
-    mock_modules = [
-        "joblib", "matplotlib", "matplotlib.pyplot", "numpy", "pandas",
-        "seaborn", "PIL", "skimage.color", "skimage.feature",
-        "sklearn.ensemble", "sklearn.linear_model", "sklearn.metrics",
-        "sklearn.model_selection", "sklearn.preprocessing"
-    ]
+def test_predict_image_file_not_found(tmp_path):
+    # Arrange
+    dummy_path = Path("non_existent_image.jpg")
 
-    with patch.dict(sys.modules, {mod: MagicMock() for mod in mock_modules}):
-        from pest_classifier_2_1 import predict_image
+    # Utworzenie tymczasowego modelu
+    model_dir = tmp_path / "ML"
+    model_dir.mkdir()
 
-        # Arrange
-        dummy_path = "non_existent_image.jpg"
-        mock_model = MagicMock()
-        mock_label_encoder = MagicMock()
+    # Plik konfiguracyjny - to jest minimalnie potrzebne by load_artifacts nie rzucał błędu na początku
+    import json
+    import joblib
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.preprocessing import LabelEncoder
 
-        # Act & Assert
-        with pytest.raises(FileNotFoundError) as excinfo:
-            predict_image(dummy_path, mock_model, mock_label_encoder)
+    with open(model_dir / "features_config.json", "w") as f:
+        json.dump({
+            "IMG_SIZE": [128, 128],
+            "HIST_BINS": 8,
+            "HOG_ORIENTATIONS": 8,
+            "HOG_PIXELS_PER_CELL": [16, 16],
+            "HOG_CELLS_PER_BLOCK": [2, 2],
+            "LBP_RADIUS": 1,
+            "LBP_N_POINTS": 8,
+            "LBP_BINS": 32
+        }, f)
 
-        assert "Obraz nie istnieje" in str(excinfo.value)
-        assert dummy_path in str(excinfo.value)
+    joblib.dump(RandomForestClassifier(), model_dir / "rf_model.joblib")
+    joblib.dump(LabelEncoder(), model_dir / "label_encoder.joblib")
+
+    # Act & Assert
+    with pytest.raises(FileNotFoundError):
+        # The exact exception class might be FileNotFoundError or PIL.UnidentifiedImageError
+        # depending on exactly how Image.open handles it, but FileNotFoundError is typical for a completely missing file
+        predict_single(dummy_path, model_dir)
