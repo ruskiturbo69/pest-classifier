@@ -108,6 +108,7 @@ def load_dataset_metadata(root_dir):
         pd.DataFrame: DataFrame containing paths and labels for each image.
     """
     train_dir = root_dir / "train"
+
     image_paths = []
 
     for p in train_dir.rglob("*"):

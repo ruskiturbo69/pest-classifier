@@ -1,10 +1,11 @@
-numpy
-pandas
-matplotlib
-seaborn
-Pillow
-scikit-learn
-scikit-image
-joblib
-tabulate
-pytest
+# PyTorch and torchvision may need a platform-specific CUDA wheel.
+# For a GPU setup, use the command generated at https://pytorch.org/get-started/locally/
+torch>=2.2,<3.0
+torchvision>=0.17,<1.0
+
+numpy>=1.26
+Pillow>=10.0
+scikit-learn>=1.3
+matplotlib>=3.8
+tqdm>=4.66
+pytest>=8.0
